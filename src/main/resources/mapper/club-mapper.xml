@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Club">
+    <select id="selectClubPaginated" parameterType="map" resultType="ClubDTO">
+        SELECT *
+        FROM club
+        ORDER BY signgu_nm
+            LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <insert id="insertClub" parameterType="map">
+        INSERT INTO club (
+            item_nm, ctprvn_nm, signgu_nm, nm, trobl_ty_nm,
+            oper_time_cn, intrcn_cn, host_index, host_id
+        ) VALUES (
+                     #{item_nm}, #{ctprvn_nm}, #{signgu_nm}, #{nm}, #{trobl_ty_nm},
+                     #{oper_time_cn}, #{intrcn_cn}, #{host_index}, #{host_id}
+                 )
+    </insert>
+    <delete id="deleteClub" parameterType="map">
+        DELETE FROM club
+        WHERE nm = #{nm}
+          AND oper_time_cn = #{oper_time_cn}
+    </delete>
+    <update id="updateClub" parameterType="map">
+        UPDATE club
+        SET item_nm = CASE WHEN #{item_nm} IS NOT NULL THEN #{item_nm} ELSE item_nm END,
+            ctprvn_nm = CASE WHEN #{ctprvn_nm} IS NOT NULL THEN #{ctprvn_nm} ELSE ctprvn_nm END,
+            signgu_nm = CASE WHEN #{signgu_nm} IS NOT NULL THEN #{signgu_nm} ELSE signgu_nm END,
+            nm = CASE WHEN #{nm} IS NOT NULL THEN #{nm} ELSE nm END,
+            trobl_ty_nm = CASE WHEN #{trobl_ty_nm} IS NOT NULL THEN #{trobl_ty_nm} ELSE trobl_ty_nm END,
+            oper_time_cn = CASE WHEN #{oper_time_cn} IS NOT NULL THEN #{oper_time_cn} ELSE oper_time_cn END,
+            intrcn_cn = CASE WHEN #{intrcn_cn} IS NOT NULL THEN #{intrcn_cn} ELSE intrcn_cn END
+        WHERE nm = #{nm}
+          AND oper_time_cn = #{oper_time_cn}
+    </update>
+</mapper>

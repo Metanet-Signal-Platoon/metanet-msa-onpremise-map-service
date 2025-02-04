@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Ftness">
+
+    <insert id="recoFtnessListUp" parameterType="map">
+        insert into reco_ftness (user_index, user_id, exercise_name, Z)
+        values (#{user_index}, #{user_id}, #{exercise_name}, #{reason})
+    </insert>
+
+    <select id="getFtnessByUser" parameterType="map"  resultType="recoFtnessDTO">
+        select *
+        from reco_ftness
+        where user_index = #{user_index}
+          and user_id = #{user_id}
+
+    </select>
+    <update id="updateRecoFtness" parameterType="map">
+        UPDATE reco_ftness
+        SET
+            reason = CASE WHEN #{reason} IS NOT NULL THEN #{reason} ELSE reason END,
+            like_yn = CASE WHEN #{like_yn} IS NOT NULL THEN #{like_yn} ELSE like_yn END
+        WHERE reco_ftness_index = #{reco_ftness_index}
+    </update>
+    <select id="getLikeFtness" parameterType="map"  resultType="recoFtnessDTO">
+        select *
+        from reco_ftness
+        where user_index = #{user_index}
+          and user_id = #{user_id}
+          and like_yn = 1
+    </select>
+
+    <select id="countFtnessLike" parameterType="map" resultType="ftnessDTO">
+        select *
+        from ftness_mesure_data
+        where ftness_mesure_index = #{ftness_mesure_index}
+          and exercise_name = #{exercise_name}
+    </select>
+
+</mapper>

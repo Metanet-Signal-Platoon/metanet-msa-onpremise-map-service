@@ -1,0 +1,30 @@
+# server port
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+
+# database
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/my_database
+    username: root
+    password: abc1234
+
+# mybatis
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  config-location: classpath:mybatis-config.xml
+
+# jwt key
+jwt:
+  secret: dlrjsmsbfvmfhwprxmdmlwpdltmsxhzmsdkaghghkzldlqslekdkanehdlrjtdmfdkffurhgkwlaktlqtldh
+#  expiration: 3600 # 토큰 만료 시간 (초 단위)

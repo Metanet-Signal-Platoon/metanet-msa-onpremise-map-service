@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="MapFilter">
+
+
+    <select id="mapFilter" parameterType="map" resultType="mapFilterDTO">
+        SELECT *
+        FROM voucher_spot
+        WHERE
+            alsfc_lo BETWEEN #{l_lo} AND #{r_lo}
+          AND alsfc_la BETWEEN #{l_la} AND #{r_la}
+    </select>
+
+
+</mapper>
