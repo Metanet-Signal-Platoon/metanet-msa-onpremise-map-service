@@ -7,7 +7,8 @@
         <typeAlias type="com.example.back_end_bf.dto.ClubDTO" alias="clubDTO"/>
         <typeAlias type="com.example.back_end_bf.dto.RecoFtnessDTO" alias="recoFtnessDTO"/>
         <typeAlias type="com.example.back_end_bf.dto.FtnessDTO" alias="ftnessDTO"/>
+        <typeAlias type="com.example.back_end_bf.dto.LocationDTO" alias="LocationDTO"/>
+        <typeAlias type="com.example.back_end_bf.dto.RealEstateListingDTO" alias="RealEstateListingDTO"/>
         <typeAlias type="com.example.back_end_bf.dto.RefreshDTO" alias="refreshDTO"/>
-        <typeAlias type="com.example.back_end_bf.dto.MapFilterDTO" alias="mapFilterDTO"/>
     </typeAliases>
 </configuration>
