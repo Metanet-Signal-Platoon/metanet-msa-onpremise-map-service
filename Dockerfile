@@ -4,16 +4,20 @@ FROM gradle:8.3-jdk17 AS builder
 # 작업 디렉토리 설정
 WORKDIR /app
 
-# Gradle 캐시를 활용하기 위해 gradle 관련 파일 먼저 복사
+# Gradle Wrapper 복사 (필수)
+COPY gradlew gradlew
 COPY gradle gradle
 COPY build.gradle settings.gradle ./
 
-# Gradle 의존성 미리 다운로드
-RUN gradle dependencies --no-daemon
+# 실행 권한 추가
+RUN chmod +x gradlew
+
+# Gradle 의존성 미리 다운로드 (캐시 최적화)
+RUN ./gradlew dependencies --no-daemon --project-cache-dir /app/.gradle
 
 # 전체 프로젝트 복사 후 빌드
 COPY . .
-RUN gradle build -x test --no-daemon
+RUN ./gradlew build -x test --no-daemon
 
 # 2단계: 실행 단계
 FROM eclipse-temurin:17-jdk-alpine
