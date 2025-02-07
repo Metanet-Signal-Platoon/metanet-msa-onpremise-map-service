@@ -30,8 +30,8 @@ RUN ./gradlew dependencies --no-daemon
 COPY . .
 RUN ./gradlew build -x test --no-daemon
 
-# 2단계: 실행 단계
-FROM eclipse-temurin:21-jdk AS runtime  # 실행 단계에서도 Java 21 사용
+# 올바른 이미지 사용
+FROM eclipse-temurin:21.0.2_13-jdk-alpine AS runtime
 
 WORKDIR /app
 
