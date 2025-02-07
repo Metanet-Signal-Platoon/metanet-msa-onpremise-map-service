@@ -31,7 +31,7 @@ COPY . .
 RUN ./gradlew build -x test --no-daemon
 
 # 2단계: 실행 단계
-FROM eclipse-temurin:21-jdk-alpine  # 실행 단계에서도 Java 21 사용
+FROM eclipse-temurin:21-jdk AS runtime  # 실행 단계에서도 Java 21 사용
 
 WORKDIR /app
 
