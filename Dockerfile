@@ -1,99 +1,38 @@
-name: CI
+# 1단계: 빌드 단계
+FROM node:20-alpine AS builder
 
-on:
-  push:
-    branches:
-      - main
+# 작업 디렉토리 생성
+WORKDIR /app
 
-jobs:
-  build-and-update:
-    runs-on: ubuntu-latest
+# 빌드에 필요한 패키지 설치
+RUN apk add --no-cache python3 make g++
 
-    steps:
-      - name: Checkout Application Repository
-        uses: actions/checkout@v3
+# package.json, package-lock.json 복사 후 의존성 설치
+COPY package*.json ./
+RUN npm install  # <-- `--production` 제거
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+# 전체 소스 코드 복사
+COPY . .
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+# NestJS 애플리케이션 빌드
+RUN npm run build
 
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+# 2단계: 실제 실행 이미지
+FROM node:20-alpine
 
-      - name: Prepare Image Tag
-        id: prepare-tag
-        run: |
-          TAG=$(date +%s)
-          echo "TAG=$TAG" >> $GITHUB_ENV
-          echo "Generated TAG: $TAG"
+WORKDIR /app
 
-      - name: Build and Push Docker Image
-        id: build_and_push
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          push: true
-          tags: |
-            ykim73094/metanet-msa-migration-fe:latest
-            ykim73094/metanet-msa-migration-fe:${{ env.TAG }}
+# 빌드된 결과물만 복사
+COPY --from=builder /app/dist ./dist
+COPY package*.json ./
 
-      - name: Checkout ArgoCD Repository
-        uses: actions/checkout@v3
-        with:
-          repository: Metanet-Signal-Platoon/argo-metanet-msa-migration-fe
-          token: ${{ secrets.GH_PAT }}
-          fetch-depth: 0  # 전체 브랜치 가져오기
+# 프로덕션 의존성 설치
+RUN npm install --production
 
-      - name: Check File Path
-        run: ls -R
+# 환경변수 설정
+ENV NODE_ENV=production
+ENV PORT=8080
 
-      - name: Find Deployment File
-        run: |
-          FILE_PATH=$(find . -type f -name "deployment.yaml" | head -n 1)
+EXPOSE 8080
 
-          if [ -z "$FILE_PATH" ]; then
-            echo "Error: deployment.yaml not found!"
-            exit 1
-          fi
-
-          echo "Found deployment file: $FILE_PATH"
-          echo "DEPLOYMENT_FILE=$FILE_PATH" >> $GITHUB_ENV
-
-      - name: Update Image in Deployment File
-        run: |
-          if [ -f "${{ env.DEPLOYMENT_FILE }}" ]; then
-            echo "Updating image in ${{ env.DEPLOYMENT_FILE }}"
-            sed -i "s|image: ykim73094/metanet-msa-migration-fe:.*|image: ykim73094/metanet-msa-migration-fe:${{ env.TAG }}|" "${{ env.DEPLOYMENT_FILE }}"
-
-            # 변경 사항 확인
-            git diff "${{ env.DEPLOYMENT_FILE }}"
-
-            if git diff --quiet "${{ env.DEPLOYMENT_FILE }}"; then
-              echo "No changes detected in ${{ env.DEPLOYMENT_FILE }}"
-              exit 0  # 변경 사항이 없으면 오류 없이 종료
-            fi
-          else
-            echo "Error: deployment.yaml not found!"
-            exit 1
-          fi
-
-      - name: Commit and Push Changes
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-          
-          git add "${{ env.DEPLOYMENT_FILE }}"
-
-          # 변경 사항이 있을 경우에만 commit & push 수행
-          if git diff --staged --quiet; then
-            echo "No changes to commit"
-            exit 0  # 변경 사항이 없으면 정상 종료
-          else
-            git commit -m "Update image to ykim73094/metanet-msa-migration-fe:${{ env.TAG }}"
-            git push origin main
-          fi
+CMD ["npm", "run", "start:prod"]
