@@ -28,6 +28,7 @@ RUN ./gradlew dependencies --no-daemon
 
 # 전체 프로젝트 복사 후 빌드
 COPY . .
+RUN chmod +x gradlew
 RUN ./gradlew build -x test --no-daemon
 
 # 올바른 이미지 사용
