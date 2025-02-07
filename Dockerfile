@@ -12,8 +12,11 @@ COPY build.gradle settings.gradle ./
 # 실행 권한 추가
 RUN chmod +x gradlew
 
-# Gradle 의존성 미리 다운로드 (캐시 최적화)
-RUN ./gradlew dependencies --no-daemon --project-cache-dir /app/.gradle
+# Gradle 버전 확인
+RUN ./gradlew --version
+
+# Gradle 의존성 다운로드 (기본 경로 사용)
+RUN ./gradlew dependencies --no-daemon
 
 # 전체 프로젝트 복사 후 빌드
 COPY . .
