@@ -11,39 +11,35 @@ ENV JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
 ENV PATH="$JAVA_HOME/bin:$PATH"
 
 # Gradle Wrapper 및 설정 파일 복사 (실행 권한 부여)
+# Docker 20.10 이상인 경우 COPY --chmod 사용
 COPY --chmod=755 gradlew gradlew
 COPY gradle gradle
 COPY build.gradle settings.gradle ./
 
-# 의존성 다운로드 및 캐시 최적화 (실제 빌드 없이 의존성만 다운로드)
-RUN ./gradlew dependencies --no-daemon || true
+# 의존성 캐시 레이어 생성 (빌드에 자주 쓰이는 의존성 미리 다운로드)
+RUN ./gradlew dependencies --no-daemon
 
 # 전체 프로젝트 복사
+# (.dockerignore로 불필요한 파일 제외)
 COPY . .
 
-# 실행 권한 재설정
+# (만약 위 COPY로 인해 gradlew의 실행 권한이 손실된다면) 재설정
 RUN chmod +x gradlew
 
-# Gradle 빌드 수행 (테스트 제외)
-RUN ./gradlew clean build -x test --no-daemon
-
-# 빌드된 JAR 파일 확인 및 파일명 출력
-RUN ls -lah build/libs/
-
-# JAR 파일명을 변수로 지정
-RUN export JAR_FILE=$(ls build/libs/*.jar | head -n 1) && \
-    echo "JAR_FILE: $JAR_FILE"
+# 실제 빌드 (테스트 제외)
+RUN ./gradlew build -x test --no-daemon
 
 # 2단계: 실행 단계 (최소한의 런타임 이미지 사용)
 FROM eclipse-temurin:21.0.2_13-jdk-alpine AS runtime
 
 WORKDIR /app
 
-# 빌드된 JAR 파일을 정확한 이름으로 복사
-COPY --from=builder /app/build/libs/*.jar /app/app.jar
+# 빌드된 JAR 파일 복사 (하나의 실행 파일이 생성된다고 가정)
+COPY --from=builder /app/build/libs/*.war app.war
+#COPY /build/libs/back-end-bf-0.0.1-SNAPSHOT.war app.war
 
 # 애플리케이션 포트 노출
 EXPOSE 8080
 
 # 애플리케이션 실행
-CMD ["sh", "-c", "java -jar /app/app.jar"]
+CMD ["java", "-jar", "app.war"]
