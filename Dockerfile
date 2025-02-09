@@ -27,12 +27,19 @@ RUN chmod +x gradlew
 # Gradle 빌드 수행 (테스트 제외)
 RUN ./gradlew clean build -x test --no-daemon
 
+# 빌드된 JAR 파일 확인 및 파일명 출력
+RUN ls -lah build/libs/
+
+# JAR 파일명을 변수로 지정
+RUN export JAR_FILE=$(ls build/libs/*.jar | head -n 1) && \
+    echo "JAR_FILE: $JAR_FILE"
+
 # 2단계: 실행 단계 (최소한의 런타임 이미지 사용)
 FROM eclipse-temurin:21.0.2_13-jdk-alpine AS runtime
 
 WORKDIR /app
 
-# 빌드된 JAR 파일 복사 (정확한 파일명을 지정)
+# 빌드된 JAR 파일을 정확한 이름으로 복사
 COPY --from=builder /app/build/libs/*.jar /app/app.jar
 
 # 애플리케이션 포트 노출
