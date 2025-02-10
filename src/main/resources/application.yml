@@ -15,9 +15,9 @@ management:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/my_database
-    username: root
-    password: abc1234
+    url: jdbc:mysql://10.0.1.8:3306/my_database
+    username: metanet
+    password: Abcd1234!
 
 # mybatis
 mybatis:

@@ -91,7 +91,7 @@ public class SecurityConfig {
                         .requestMatchers("/reissue").permitAll()
                         .anyRequest().authenticated());
 
-        //로그인 필터
+        //login
         http
                 .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshRepository), UsernamePasswordAuthenticationFilter.class);
 
