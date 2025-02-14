@@ -58,16 +58,12 @@ public class SecurityConfig {
                     public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
 
                         CorsConfiguration configuration = new CorsConfiguration();
-
-                        configuration.setAllowedOrigins(Collections.singletonList("https://20.214.117.134"));
+                        configuration.setAllowedOriginPatterns(Collections.singletonList("*"));  // ✅ 변경된 부분
                         configuration.setAllowedMethods(Collections.singletonList("*"));
                         configuration.setAllowCredentials(true);
                         configuration.setAllowedHeaders(Collections.singletonList("*"));
-                        configuration.setMaxAge(3600L);
-
                         configuration.setExposedHeaders(Collections.singletonList("Authorization"));
-
-                        return configuration    ;
+                        return configuration;
                     }
                 })));
 

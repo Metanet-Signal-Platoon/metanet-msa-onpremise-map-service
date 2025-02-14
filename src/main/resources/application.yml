@@ -15,7 +15,7 @@ management:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://10.0.1.8:3306/my_database
+    url: jdbc:mysql://192.168.0.212:3306/my_database
     username: metanet
     password: Abcd1234!
 
@@ -23,6 +23,12 @@ spring:
 mybatis:
   mapper-locations: classpath:mapper/*.xml
   config-location: classpath:mybatis-config.xml
+
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
 
 # jwt key
 jwt:

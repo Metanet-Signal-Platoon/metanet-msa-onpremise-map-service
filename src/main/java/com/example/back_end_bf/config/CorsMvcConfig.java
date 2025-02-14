@@ -14,9 +14,10 @@ public class CorsMvcConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**") // 모든 API에 대해 CORS 허용
-                        .allowedOrigins("*") // 모든 도메인 허용
+                        .allowedOriginPatterns("*")  // 모든 도메인 허용
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        .allowedHeaders("*");
+                        .allowedHeaders("*")
+                        .allowCredentials(true); // ✅ 인증 정보(쿠키) 허용
             }
         };
     }

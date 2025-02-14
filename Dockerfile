@@ -4,8 +4,14 @@ FROM gradle:8.5.0-jammy AS builder
 WORKDIR /app
 
 # JDK 21 설치 및 캐시 레이어 최적화
-RUN apt-get update && apt-get install -y openjdk-21-jdk && \
-    rm -rf /var/lib/apt/lists/*
+RUN sed -i 's|http://archive.ubuntu.com/ubuntu|http://mirror.kakao.com/ubuntu|g' /etc/apt/sources.list \
+    && sed -i 's|http://security.ubuntu.com/ubuntu|http://mirror.kakao.com/ubuntu|g' /etc/apt/sources.list \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get update --fix-missing \
+    && apt-get install -y --no-install-recommends openjdk-21-jdk \
+    && rm -rf /var/lib/apt/lists/*
+
 
 ENV JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
 ENV PATH="$JAVA_HOME/bin:$PATH"
@@ -17,7 +23,7 @@ COPY gradle gradle
 COPY build.gradle settings.gradle ./
 
 # 의존성 캐시 레이어 생성 (빌드에 자주 쓰이는 의존성 미리 다운로드)
-RUN ./gradlew dependencies --no-daemon
+RUN ./gradlew dependencies --no-daemon --refresh-dependencies
 
 # 전체 프로젝트 복사
 # (.dockerignore로 불필요한 파일 제외)
@@ -27,7 +33,7 @@ COPY . .
 RUN chmod +x gradlew
 
 # 실제 빌드 (테스트 제외)
-RUN ./gradlew build -x test --no-daemon
+RUN ./gradlew build -x test --no-daemon --refresh-dependencies
 
 # 2단계: 실행 단계 (최소한의 런타임 이미지 사용)
 FROM eclipse-temurin:21.0.2_13-jdk-alpine AS runtime
